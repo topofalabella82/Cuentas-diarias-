@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mis Cuentas Diarias</title>
+<style>
+:root{color-scheme:light dark;--bg:#f3f5f8;--surface:#fff;--surface2:#eef2f6;--text:#18202a;--muted:#657181;--border:#dbe1e8;--accent:#1769e0;--good:#14804a;--warn:#a15c00;--danger:#c0392b}
+@media(prefers-color-scheme:dark){:root{--bg:#101418;--surface:#171c21;--surface2:#20272e;--text:#f1f4f7;--muted:#aab4bf;--border:#303943;--accent:#69a3ff;--good:#49c989;--warn:#f0aa4b;--danger:#ff796b}}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+#app{min-height:100vh;background:var(--bg);padding:18px 14px 40px}.wrap{max-width:760px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.title h1{font-size:25px;margin:0 0 3px}.title p{margin:0;color:var(--muted);font-size:13px}.month{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:9px 11px;font-size:14px;color:var(--text)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px}.label{font-size:12px;color:var(--muted);margin-bottom:5px}.big{font-size:23px;font-weight:750}.accent{color:var(--accent)}.good{color:var(--good)}.warn{color:var(--warn)}
+.panel{margin-top:12px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:15px}.panel h2{font-size:17px;margin:0 0 12px}.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.field input{width:100%;border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:11px;padding:11px;font-size:16px;outline:none}.field input:focus{border-color:var(--accent)}
+.progress{height:12px;background:var(--surface2);border-radius:99px;overflow:hidden;margin:12px 0}.bar{height:100%;width:0;background:var(--accent);transition:.2s}.status{font-size:13px;color:var(--muted)}
+.list{display:grid;gap:7px}.row{display:grid;grid-template-columns:1fr 125px 86px;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--border)}.row:last-child{border-bottom:0}.name{font-size:14px}.row input{width:100%;padding:8px 9px;border:1px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--text);font-size:14px;text-align:right}.amount{text-align:right;font-weight:650;font-size:14px}.total{display:flex;justify-content:space-between;padding-top:12px;margin-top:4px;border-top:2px solid var(--border);font-weight:750}.notice{margin-top:10px;padding:10px 11px;border-radius:11px;background:color-mix(in srgb,var(--warn) 12%,var(--surface));font-size:12px;color:var(--warn)}
+.daybox{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dayresult{padding:12px;border-radius:12px;background:var(--surface2)}.dayresult strong{display:block;font-size:19px;margin-top:3px}.btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.btn{border:0;border-radius:11px;padding:10px 13px;background:var(--accent);color:white;font-weight:650;cursor:pointer}.btn.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.small{font-size:11px;color:var(--muted);line-height:1.45}.footer{text-align:center;margin-top:16px}.saved{font-size:12px;color:var(--good);min-height:18px}
+@media(max-width:520px){.grid{grid-template-columns:1fr 1fr}.row{grid-template-columns:1fr 105px 78px}.top{align-items:flex-start}.title h1{font-size:22px}.big{font-size:20px}}
+</style>
+</head>
+<body><main id="app"><div class="wrap">
+<header class="top"><div class="title"><h1>💰 Mis Cuentas Diarias</h1><p>Control mensual de ingresos y gastos</p></div><div class="month"><input id="month" type="month"></div></header>
+<section class="grid">
+<div class="card"><div class="label">Meta de producción diaria</div><div class="big accent" id="dailyTarget">$0</div></div>
+<div class="card"><div class="label">Gastos diarios programados</div><div class="big" id="dailyExpenses">$0</div></div>
+<div class="card"><div class="label">Gastos programados del mes</div><div class="big" id="monthlyExpenses">$0</div></div>
+<div class="card"><div class="label">Margen diario sobre la meta</div><div class="big good" id="dailyMargin">$0</div></div>
+</section>
+<section class="panel"><h2>📅 Resumen del día</h2><div class="controls">
+<div class="field"><label>¿Cuánto produjiste hoy?</label><input id="income" type="number" min="0" step="1000" placeholder="280000"></div>
+<div class="field"><label>Días de trabajo del mes</label><input id="days" type="number" min="1" max="31" step="1" value="26"></div>
+</div><div class="progress"><div class="bar" id="bar"></div></div><div class="status" id="incomeStatus">Ingresa tu producción para ver el resultado.</div></section>
+<section class="panel"><h2>🧾 Mis gastos diarios</h2><div class="list" id="list"></div><div class="total"><span>Total de los 14 conceptos</span><span id="sum">$0</span></div><div class="notice" id="difference"></div><div class="btns"><button class="btn" id="save">Guardar cambios</button><button class="btn secondary" id="reset">Restablecer valores iniciales</button></div><div class="saved" id="saved"></div></section>
+<section class="panel"><h2>📊 Proyección mensual</h2><div class="daybox"><div class="dayresult"><div class="label">Producción si cumples $280.000 × días</div><strong id="production">$0</strong></div><div class="dayresult"><div class="label">Saldo después de gastos programados</div><strong class="good" id="monthlyBalance">$0</strong></div></div><p class="small">Los valores son editables para que puedas cambiarlos cada mes. La página calcula automáticamente los totales y conserva los cambios en este dispositivo.</p></section>
+</div></main>
+<script>
+const initial=[
+['Mantenimiento',20000],['Gasolina',55000],['Comida',30000],['Claro',4600],['Celular Juan',24000],['Celular Argenis',1400],['Intereses',16000],['Alkomprar',13000],['Nu',12000],['Pitu',7700],['Universidad',25500],['Ahorro',20000],['Alejandro',10000],['Uber',24900]
+];
+const money=n=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(Math.round(n));
+let values=JSON.parse(localStorage.getItem('cuentasValores')||'null')||initial.map(x=>[x[0],x[1]]);
+const $=id=>document.getElementById(id); const sum=()=>values.reduce((a,x)=>a+Number(x[1]||0),0);
+function render(){
+ $('list').innerHTML=values.map((x,i)=>`<div class="row"><div class="name">${x[0]}</div><input data-i="${i}" type="number" min="0" step="100" value="${x[1]}"><div class="amount" id="amt${i}">${money(x[1])}</div></div>`).join('');
+ document.querySelectorAll('[data-i]').forEach(inp=>inp.addEventListener('input',e=>{values[+e.target.dataset.i][1]=Number(e.target.value)||0; update()})); update();
+}
+function update(){
+ const s=sum(), days=Number($('days').value)||26, target=280000, income=Number($('income').value)||0;
+ $('dailyTarget').textContent=money(target);$('dailyExpenses').textContent=money(s);$('monthlyExpenses').textContent=money(s*days);$('dailyMargin').textContent=money(target-s);$('sum').textContent=money(s);
+ const expected=265100; const diff=expected-s; $('difference').textContent=diff===0?'✓ La suma coincide con el total diario registrado de $265.100.':`⚠️ Revisión: los 14 valores suman ${money(s)}, pero el total diario que habíamos registrado era ${money(expected)}. Diferencia: ${money(diff)}.`;
+ document.querySelectorAll('[data-i]').forEach(inp=>{const i=+inp.dataset.i;$('amt'+i).textContent=money(values[i][1]);});
+ const pct=Math.min(100,(income/target)*100);$('bar').style.width=pct+'%';
+ if(income){const rest=income-s;$('incomeStatus').textContent=income>=s?`Después de separar los gastos diarios quedarían ${money(rest)}.`:`Te faltarían ${money(s-income)} para cubrir los gastos diarios programados.`}else $('incomeStatus').textContent='Ingresa tu producción para ver el resultado.';
+ $('production').textContent=money(target*days);$('monthlyBalance').textContent=money(target*days-s*days);
+}
+$('days').addEventListener('input',update);$('income').addEventListener('input',update);
+$('month').value=new Date().toISOString().slice(0,7);
+$('save').onclick=()=>{localStorage.setItem('cuentasValores',JSON.stringify(values));$('saved').textContent='✓ Cambios guardados en este dispositivo.';setTimeout(()=>$('saved').textContent='',2200)};
+$('reset').onclick=()=>{values=initial.map(x=>[x[0],x[1]]);localStorage.removeItem('cuentasValores');render();$('saved').textContent='Valores iniciales restaurados.';setTimeout(()=>$('saved').textContent='',2200)};
+render();
+</script></body></html>
